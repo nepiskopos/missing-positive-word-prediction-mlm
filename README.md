@@ -1,4 +1,4 @@
-# Positive missing word predictor
+# Missing word predictor using MLMs
 
 This repository contains API-based ML application which predicts a missing word in a sentence which gives the sentence a positive vibe.
 
