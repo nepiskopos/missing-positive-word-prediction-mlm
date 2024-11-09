@@ -49,7 +49,7 @@ Then, you can send POST HTTP requests to the application API and get the respons
 
 # To send a post HTTP request to the application API on a running server using cURL (command-line tool):
 ```console
-curl -X 'POST' 'http://127.0.0.1:8888/api/predict' 
+curl -X 'POST' 'http://127.0.0.1:8888/api/predict_single' 
      -H 'accept: application/json'
      -H 'Content-Type: text/plain'
      -d 'I wish you have a <blank> day!'
