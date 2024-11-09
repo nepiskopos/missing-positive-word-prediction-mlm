@@ -16,10 +16,6 @@ ARG TARGETARCH=amd64
 EXPOSE 8000
 
 
-# Set Python output direction for printing Python messages from the container
-ENV PYTHONUNBUFFERED=1
-
-
 # Create a directory for the app
 RUN mkdir /root/app/
 RUN mkdir -p /root/app/cache
@@ -28,6 +24,10 @@ RUN mkdir -p /root/app/nltk_data
 
 # Add app directory to Python path
 ENV PYTHONPATH=/root/app/
+
+
+# Set Python output direction for printing Python messages from the container
+ENV PYTHONUNBUFFERED=1
 
 
 # Change working directory
@@ -40,7 +40,7 @@ ADD ./requirements.txt /root/app/
 
 
 # Install required Python packages
-RUN python3 -m pip install --no-cache-dir -r ./requirements.txt
+RUN python3 -m pip --no-cache-dir install -r ./requirements.txt
 
 
 # Download NLTK data
