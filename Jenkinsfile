@@ -1,8 +1,8 @@
 pipeline {
     environment {
-        imagename = "nepiskopos/appimg"
+        imagename = "nepiskopos/predict"
         dockerImage = ''
-        containerName = 'appcont'
+        containerName = 'predict'
     }
 
     agent any
@@ -27,7 +27,7 @@ pipeline {
                 script {
                     sh "docker run -d -p 8888:8000 --name ${containerName} ${imagename}:latest"
                     sh "sleep 2"
-                    sh "curl -X 'POST' 'http://0.0.0.0:8888/predict' -H 'accept: application/json' -H 'Content-Type: text/plain' -d 'I wish you have a <blank> day!'"
+                    sh "curl -X 'POST' 'http://0.0.0.0:8888/api/predict_single' -H 'accept: application/json' -H 'Content-Type: text/plain' -d 'I wish you have a <blank> day!'"
                     // Perform any additional steps needed while the container is running
                 }
             }
