@@ -1,77 +1,58 @@
-# Missing word predictor using MLMs
+# Missing word predictor using BERT MLM and NLTK
 
-This repository contains API-based ML application which predicts a missing word in a sentence which gives the sentence a positive vibe.
+This repository contains API-based ML application which predicts a missing word in a sentence, which gives the sentence a positive vibe, using BERT MLM and NLTK.
 
-Predict a single missing word in a sentence, masked under the keyword, which is given to the API as an input string. The predicted missing words always give a positive sentiment to the input sentence.
+The developed solution predicts a single missing word, which is masked using the <blank> keyword.
+
+For example, given the sentence "I wish you have a <blank> day!" as the service input should return a list of words like "great", "worderful", "good", "lovely", etc., so that the sentiment is not negative.
 
 ---
 
 To easily use this application, use the provided docker container, which contains all the required setup instructions and procedure to build and deploy this application to production.
 
-# Docker setup and execution on Ubuntu 20.04
-
-## Install Docker
-```console
-sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-sudo apt-get -y install docker-ce
-```
-
-
-## Create a group for docker users
-```console
-sudo groupadd docker
-```
-
-## Add your user to the docker group
-```console
-sudo usermod -aG docker $USER
-```
-
-## Apply the new group membership
-```console
-newgrp docker
-su - ${USER}
-exit # IT IS NEEDED, AT LEAST AFTERWARDS
-```
-
-## Confirm your user was added to the docker group
-```console
-id -nG
-```
-
-## Start docker service and enable automatic start on boot
-```console
-sudo systemctl enable docker.service
-sudo systemctl start docker.service
-```
-
-## (Optional) if docker service can not be activated, reboot
-```console
-reboot
-```
-
-## Test docker installation
-```console
-docker run hello-world
-```
-
-## Build a custom application Docker image named "nepiskopos/appimg" using our Dockerfile
-```console
-docker build -t nepiskopos/appimg:latest -f ./Dockerfile .
-```
-
-## Deploy the application to production using a Docker container named "appcont" which accepts network traffic in port 8000
-```console
-docker run -p 8000:8000 --name appcont nepiskopos/appimg
-```
+For a scalable option, a dockerized load-balancer solution is provided, which spawns an Nginx server which redirects any incoming traffic to any of the 4 spawned docker containers backends.
 
 ---
 
-# Send a post HTTP request to the application API on a running server using curl (command-line tool):
+To launch the service in a single docker container, first you need to [install Docker](https://docs.docker.com/desktop/install/linux/) and [buildx](https://docs.docker.com/reference/cli/docker/buildx/).
+
+After you setup Docker and launch the Docker service, use the following commands to build the Docker Image and run the Container.
+
+### To build the Docker image naming it "nepiskopos/predict" using the provided Dockerfile
 ```console
-curl -X 'POST' 'http://API_IP_ADDRESS:PORT/predict' -H 'accept: application/json' -H 'Content-Type: text/plain' -d 'I wish you have a day!'
+cd missing-positive-word-prediction-mlm
+docker buildx build -t nepiskopos/predict .
 ```
 
-Request response is a JSON object which contains a list of strings which satisfy the positive sentiment requirements under the "content" name (key) or with a suitable error message in case an error occurs or no suitable words are predicted.
+### To deploy the application to production using a Docker container named "predict" which accepts network traffic in container port 8000 through host port 8888
+```console
+docker run -p 8888:8000 --name predict nepiskopos/predict
+```
+
+Then, you can send POST HTTP requests to the application API and get the response as a JSON object.
+
+---
+
+To launch a Load-balancing service, first you need to [install Docker](https://docs.docker.com/desktop/install/linux/) and [Docker Compose](https://docs.docker.com/compose/install/linux/).
+
+After you setup Docker and launch the Docker service, use the following command to easily build the Docker Image and run all the Containers.
+
+### To build the Docker image naming it "nepiskopos/predict-lb" using the provided Dockerfile
+```console
+cd missing-positive-word-prediction-mlm/load_balancer
+docker-compose up
+```
+
+Then, you can send POST HTTP requests to the application API and get the response as a JSON object, just like before, but this time more requests can be served in parallel.
+
+---
+
+# To send a post HTTP request to the application API on a running server using cURL (command-line tool):
+```console
+curl -X 'POST' 'http://127.0.0.1:8888/api/predict' 
+     -H 'accept: application/json'
+     -H 'Content-Type: text/plain'
+     -d 'I wish you have a <blank> day!'
+```
+
+The service response to the HTTP request is a JSON object which contains a list of strings the "content" key or with a suitable error message in case an error occurs or no suitable words are predicted.

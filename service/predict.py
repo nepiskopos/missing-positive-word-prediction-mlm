@@ -17,8 +17,8 @@ def init_models(mask='<blank>'):
     global acceptable_words
 
     # Step 1: Change Hugging Face and NLTK cache directory
-    cache_dir = os.path.join(os.getcwd(), 'cache')
-    nltk_dir = os.path.join(os.getcwd(), 'nltk_data')
+    cache_dir = os.path.join(os.path.dirname(__file__), 'cache')
+    nltk_dir = os.path.join(os.path.dirname(__file__), 'nltk_data')
     nltk.data.path.append(nltk_dir)
 
     # Create Hugging Face cache directory if not exists

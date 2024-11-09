@@ -1,4 +1,4 @@
-FROM python:3.10.14-slim
+FROM python:3.10-slim
 
 
 LABEL maintainer="Nikos Episkopos <https://linkedin.com/in/nepiskopos/>"
@@ -12,27 +12,31 @@ ENV LANG=C.UTF-8
 ARG TARGETARCH=amd64
 
 
-# Create a directory for the app
-RUN mkdir /root/app/
-RUN mkdir -p /root/app/cache
-RUN mkdir -p /root/app/nltk_data
-
-
-# Copy the application directory and required files from host to container
-ADD ./src/ /root/app/
-ADD ./requirements.txt /root/app/
-
-
-# Change working directory
-WORKDIR /root/app/
+# Expose port 8000
+EXPOSE 8000
 
 
 # Set Python output direction for printing Python messages from the container
 ENV PYTHONUNBUFFERED=1
 
 
-# Add app directory to Python app
-ENV PYTHONPATH="${PYTHONPATH}:/root/app/"
+# Create a directory for the app
+RUN mkdir /root/app/
+RUN mkdir -p /root/app/cache
+RUN mkdir -p /root/app/nltk_data
+
+
+# Add app directory to Python path
+ENV PYTHONPATH=/root/app/
+
+
+# Change working directory
+WORKDIR /root/app/
+
+
+# Copy the application directory and required files from host to container
+ADD ./service/ /root/app/
+ADD ./requirements.txt /root/app/
 
 
 # Install required Python packages
@@ -46,10 +50,6 @@ RUN python3 -m nltk.downloader -d ./nltk_data vader_lexicon words
 # Download HuggingFace models
 RUN python3 -c "from transformers import BertForMaskedLM; BertForMaskedLM.from_pretrained(pretrained_model_name_or_path='bert-base-uncased', cache_dir='./cache');"
 RUN python3 -c "from transformers import BertTokenizer; BertTokenizer.from_pretrained(pretrained_model_name_or_path='bert-base-uncased', cache_dir='./cache');"
-
-
-# Expose port 8000
-EXPOSE 8000
 
 
 # Run the application

@@ -1,53 +1,58 @@
 services:
   backend_1:
-    # build: ../
-    image: nepiskopos/appimg
+    build: ../
+    image: nepiskopos/predict
     environment:
       - PORT=8000
     networks:
-      loadbalancing:
-        ipv4_address: 192.168.0.3
+      - loadbalancing
+      # loadbalancing:
+      #   ipv4_address: 192.168.0.3
   backend_2:
-    # build: ../
-    image: nepiskopos/appimg
+    build: ../
+    image: nepiskopos/predict
     environment:
       - PORT=8000
     networks:
-      loadbalancing:
-        ipv4_address: 192.168.0.4
+      - loadbalancing
+      # loadbalancing:
+      #   ipv4_address: 192.168.0.4
   backend_3:
-    # build: ../
-    image: nepiskopos/appimg
+    build: ../
+    image: nepiskopos/predict
     environment:
       - PORT=8000
     networks:
-      loadbalancing:
-        ipv4_address: 192.168.0.5
+      - loadbalancing
+      # loadbalancing:
+      #   ipv4_address: 192.168.0.5
   backend_4:
-    # build: ../
-    image: nepiskopos/appimg
+    build: ../
+    image: nepiskopos/predict
     environment:
       - PORT=8000
     networks:
-      loadbalancing:
-        ipv4_address: 192.168.0.6
-
+      - loadbalancing
+      # loadbalancing:
+      #   ipv4_address: 192.168.0.6
   nginx:
     build: ./
+    image: nepiskopos/predict-lb
     ports:
-      - "80:80"
+      - "8888:80"
     networks:
-      loadbalancing:
-        ipv4_address: 192.168.0.2
+      - loadbalancing
+      # loadbalancing:
+      #   ipv4_address: 192.168.0.2
     depends_on:
       - backend_1
       - backend_2
       - backend_3
       - backend_4
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://192.168.0.3:8000 || http://192.168.0.4:8000 || http://192.168.0.5:8000 || http://192.168.0.6:8000 || exit 1"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD-SHELL", "curl -f http://backend_1:8000/api || http://backend_2:8000/api || http://backend_3:8000/api || http://backend_4:8000/api || exit 1"]
+      interval: 10s
+      timeout: 5s
       retries: 5
       start_period: 5s
 
@@ -56,6 +61,6 @@ networks:
     driver: bridge
     ipam:
       driver: default
-      config:
-        - subnet: 192.168.0.0/24
-          gateway: 192.168.0.1
+      # config:
+      #   - subnet: 192.168.0.0/24
+      #     gateway: 192.168.0.1
