@@ -38,7 +38,7 @@ async def predict_text(response: JSONResponse, input_text: str=Body(...)):
         - Return JSON: {"content": ["good","free","nice","better","perfect","great"]}
 
     **API test using cURL**:\n
-        curl -X 'POST' 'http://API_IP_ADDRESS:PORT/predict'
+        curl -X 'POST' 'http://API_IP_ADDRESS:PORT/predict_single'
              -H 'accept: application/json'
              -H 'Content-Type: text/plain'
              -d 'I wish you have a &lt;blank&gt; day!'
